@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-import db
+import db_new as db
 from validators import mask_ausweis
 
 app = Flask(__name__)
