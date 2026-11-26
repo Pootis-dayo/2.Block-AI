@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Geräteverleih</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+        .login-box { max-width: 350px; margin: 60px auto; padding: 30px;
+                      background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .login-box h1 { text-align: center; margin-top: 0; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; margin-top: 15px; cursor: pointer;
+                  background-color: #333; color: white; border: none; border-radius: 4px; font-size: 16px; }
+        button:hover { background-color: #555; }
+        .flash { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .flash-success { background-color: #d4edda; color: #155724; }
+        .flash-error { background-color: #f8d7da; color: #721c24; }
+        a { display: block; text-align: center; margin-top: 15px; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>Einloggen</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/login">
+            <label for="username">Benutzername:</label>
+            <input type="text" id="username" name="username" required autofocus><br>
+
+            <label for="password">Passwort:</label>
+            <input type="password" id="password" name="password" required><br>
+
+            <button type="submit">Anmelden</button>
+        </form>
+        <a href="/">← Zurück zur Geräteübersicht</a>
+    </div>
+</body>
+</html>

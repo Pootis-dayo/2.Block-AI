@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Geräteverleih</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .flash { padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+        .flash-success { background-color: #d4edda; color: #155724; }
+        .flash-error { background-color: #f8d7da; color: #721c24; }
+        .navbar { background-color: #333; overflow: hidden; margin-bottom: 20px; }
+        .navbar a { float: left; display: block; color: white; text-align: center;
+                     padding: 14px 16px; text-decoration: none; }
+        .navbar a:hover { background-color: #555; }
+        .navbar .logout-btn { float: right; }
+        h2 { clear: both; margin-top: 30px; border-bottom: 2px solid #333; padding-bottom: 5px; }
+        form.inline { display: inline; }
+        button { padding: 6px 12px; cursor: pointer; }
+        .btn-danger { background-color: #dc3545; color: white; border: none; border-radius: 4px; }
+        .btn-warning { background-color: #ffc107; color: #333; border: none; border-radius: 4px; }
+        .benutzer-form { max-width: 400px; margin-top: 10px; }
+        .benutzer-form input, .benutzer-form select { padding: 6px; margin: 4px 4px 4px 0; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/">Geräteübersicht</a>
+        <span style="color:white; float:right; padding:14px 16px;">
+            {{ benutzername }} |
+            <a href="/logout" style="color:#ffcc00;" class="logout-btn">Abmelden</a>
+        </span>
+    </div>
+
+    <h1>Admin-Bereich</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Geräteverwaltung -->
+    <h2>Geräte</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Inventarnummer</th>
+                <th>Bezeichnung</th>
+                <th>Status</th>
+                <th>Ausgeliehen von</th>
+                <th>Klasse</th>
+                <th>Ausweis</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for geraet in geraete %}
+            <tr>
+                <td>{{ geraet['id'] }}</td>
+                <td>{{ geraet['inventarnummer'] }}</td>
+                <td>{{ geraet['bezeichnung'] }}</td>
+                <td>{% if geraet['ausgeliehen_von'] %}ausgeliehen{% else %}verfügbar{% endif %}</td>
+                <td>{% if geraet['ausgeliehen_von'] %}{{ geraet['ausgeliehen_von'] }}{% else %}-{% endif %}</td>
+                <td>{% if geraet['klasse'] %}{{ geraet['klasse'] }}{% else %}-{% endif %}</td>
+                <td>{% if geraet['ausweisnummer'] %}{{ mask_ausweis(geraet['ausweisnummer']) }}{% else %}-{% endif %}</td>
+                <td>
+                    {% if not geraet['ausgeliehen_von'] %}
+                        <form class="inline" method="POST" action="/admin/loeschen/{{ geraet['id'] }}">
+                            <button type="submit" class="btn-danger">Löschen</button>
+                        </form>
+                    {% endif %}
+                    {% if geraet['ausgeliehen_von'] %}
+                        <form class="inline" method="POST" action="/admin/status_zuruecksetzen/{{ geraet['id'] }}">
+                            <button type="submit" class="btn-warning">Status zurücksetzen</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Neuen Benutzer anlegen -->
+    <h2>Neuen Benutzer anlegen</h2>
+    <form class="benutzer-form" method="POST" action="/admin/benutzer_anlegen">
+        <label>Benutzername:</label>
+        <input type="text" name="username" required><br>
+        <label>Passwort:</label>
+        <input type="password" name="password" required><br>
+        <label>Rolle:</label>
+        <select name="rolle">
+            <option value="nutzer">Nutzer</option>
+            <option value="admin">Admin</option>
+        </select><br>
+        <button type="submit">Anlegen</button>
+    </form>
+
+    <!-- Benutzerliste -->
+    <h2>Existierende Benutzer</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Benutzername</th>
+                <th>Rolle</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in benutzer %}
+            <tr>
+                <td>{{ b['id'] }}</td>
+                <td>{{ b['username'] }}</td>
+                <td>{{ b['rolle'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
